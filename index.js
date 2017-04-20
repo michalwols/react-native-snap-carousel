@@ -171,16 +171,21 @@ export default class Carousel extends Component {
 
     componentWillReceiveProps (nextProps) {
         const { activeItem, interpolators } = this.state;
-        const { firstItem } = nextProps;
-        const _firstItem = this._getFirstItem(firstItem, nextProps);
         const childrenLength = React.Children.count(nextProps.children);
-        const newActiveItem = activeItem || activeItem === 0 ? activeItem : _firstItem;
 
         if (childrenLength && interpolators.length !== childrenLength) {
             this._positions = [];
             this._calcCardPositions(nextProps);
             this._initInterpolators(nextProps);
-            this.setState({ activeItem: newActiveItem });
+
+            const nextFirstItem = this._getFirstItem(nextProps.firstItem, nextProps);
+            const prevFirstItem = this._getFirstItem(this.props.firstItem, this.props);
+
+            if (nextFirstItem !== prevFirstItem) {
+                this.setState({ activeItem: nextFirstItem })
+            } else {
+                this.setState({ activeItem: this._getFirstItem(activeItem || 0, nextProps) })
+            }
 
             if (IS_RTL) {
                 this.snapToItem(newActiveItem, false, false, true);
